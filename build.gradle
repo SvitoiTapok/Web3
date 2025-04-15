@@ -163,6 +163,7 @@ task diff {
             return
         }
 
+        println "Changed files:\n${changedFiles.join('\n')}"
         println "Changed files:\n${notAllowedPatterns.join('\n')}"
 
         def notAllowedFiles = changedFiles.findAll { fileName ->
