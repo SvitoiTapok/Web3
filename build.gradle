@@ -149,17 +149,13 @@ task diff {
     group = 'vsl'
     description = 'check diffs adn do commit if it possible'
 
-    def allowedFile = file("src/main/resources/allowed-file.txt")
+    def notAllowedFile = file("src/main/resources/not-allowed-file.txt")
 
     doLast {
-        if (!allowedFile.exists()) {
-            throw new GradleException("File ${allowedFile.name} not found")
+        if (!notAllowedFile.exists()) {
+            throw new GradleException("File ${notAllowedFile.name} not found")
         }
-
-        // Читаем список разрешённых изменений (можно использовать glob-паттерны)
-        def allowedPatterns = allowedFile.readLines()
-
-        // Получаем изменённые файлы из git
+        def notAllowedPatterns = notAllowedFile.readLines()
         def changedFiles = "git diff --name-only".execute().text.readLines()
 
         if (changedFiles.isEmpty()) {
@@ -170,7 +166,7 @@ task diff {
         println "Changed files:\n${changedFiles.join('\n')}"
 
         def notAllowedFiles = changedFiles.findAll { fileName ->
-            !allowedPatterns.any { pattern ->
+            notAllowedPatterns.any { pattern ->
                 fileName ==~ patternToRegex(pattern)
             }
         }
