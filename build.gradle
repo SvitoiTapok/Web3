@@ -133,14 +133,14 @@ task native2ascii {
     def outputDir = file("$buildDir/localization")
 
     doLast {
-        if(!outputDir.exists()){
+        if (!outputDir.exists()) {
             throw new GradleException("File ${outputDir} not found")
         }
-                ant.native2ascii(
-                        encoding: "UTF-8",
-                        src: inputDir,
-                        dest: outputDir
-                )
+        ant.native2ascii(
+                encoding: "UTF-8",
+                src: inputDir,
+                dest: outputDir
+        )
         println "Convert results in $outputDir"
     }
 }
@@ -182,6 +182,50 @@ task diff {
         def commitProcess = ["git", "commit", "-m", "commit by Gradle"].execute()
         commitProcess.waitFor()
         println commitProcess.text + "done"
+    }
+}
+task history {
+    doLast {
+        def gitLog = "git rev-list HEAD".execute().text.readLines()
+        def goodCommit = null
+        def badCommit = null
 
+        for (int i = 0; i < gitLog.size(); i++) {
+            def commit = gitLog[i]
+            println "Checking out commit: $commit"
+            "git checkout $commit".execute().waitFor()
+
+            println "Trying to compile..."
+            def process = "gradlew.bat build --no-daemon --console=plain".execute()
+            def output = new StringBuilder()
+            def error = new StringBuilder()
+            process.consumeProcessOutput(output, error)
+            process.waitFor()
+
+            if (process.exitValue() == 0) {
+                println "Successful build at commit: $commit"
+                goodCommit = commit
+                break
+            } else {
+                println "Build failed at commit: $commit"
+                badCommit = commit
+            }
+        }
+        if (!badCommit && goodCommit){
+            println "Now you at good version"
+            return
+        }
+        if (badCommit && !goodCommit){
+            println "There is no good version in git"
+        }
+        if (goodCommit && badCommit) {
+            println "\nGenerating diff between $lastGoodCommit and $failedCommit"
+            def diff = "git diff $lastGoodCommit $failedCommit".execute().text
+            def file = new File("build/last-diff.txt")
+            file.text = diff
+            println "Diff saved to: ${file.absolutePath}"
+        }
+        println "Restoring original HEAD"
+        "git checkout -".execute().waitFor()
     }
 }
