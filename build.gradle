@@ -167,7 +167,7 @@ task diff {
 
         def notAllowedFiles = changedFiles.findAll { fileName ->
             notAllowedPatterns.any { pattern ->
-                fileName ==~ patternToRegex(pattern)
+                fileName ==~ pattern.replace(".", "\\.").replace("*", ".*")
             }
         }
 
