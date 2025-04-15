@@ -1,0 +1,7 @@
+ssh -p 2222 -l s408122 -L33150:localhost:33150 helios.cs.ifmo.ru
+
+./web2/wildfly-34.0.0.Final/bin/standalone.sh
+
+ssh -p 2222 -l s408122 -L33151:localhost:33151 helios.cs.ifmo.ru
+
+psql -h pg -d studs
