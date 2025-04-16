@@ -22,34 +22,34 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    //implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
-    //implementation 'org.eclipse.persistence:eclipselink:3.0.0'
-    //implementation 'org.hibernate:hibernate-core:5.6.15.Final'
-    //implementation 'org.postgresql:postgresql:42.5.4'
-    //implementation 'com.mchange:c3p0:0.9.5.5'
-    //implementation 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1'
-    //implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
-    //implementation 'jakarta.ejb:jakarta.ejb-api:4.0.1'
-    //implementation 'jakarta.faces:jakarta.faces-api:3.0.0'
-    //implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-    //implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
-    //implementation 'jakarta.platform:jakarta.jakartaee-web-api:9.0.0'
-    //implementation 'jakarta.json:jakarta.json-api:2.1.1'
-    //implementation 'jakarta.json.bind:jakarta.json.bind-api:3.0.0'
-    //implementation 'org.postgresql:postgresql:42.6.0'
-    //implementation 'org.hibernate:hibernate-core:6.2.6.Final'
-    //implementation 'org.primefaces:primefaces:12.0.0:jakarta'
-    //implementation 'com.google.guava:guava:31.0.1-jre'
-    //implementation 'org.apache.commons:commons-lang3:3.12.0'
-    //implementation 'com.google.code.gson:gson:2.10.1'
-    //runtimeOnly 'org.flywaydb:flyway-gradle-plugin:9.16.1'
-    //compileOnly 'org.projectlombok:lombok:1.18.26'
-    //annotationProcessor 'org.projectlombok:lombok:1.18.26'
-    //testCompileOnly 'org.projectlombok:lombok:1.18.26'
-    //testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    implementation 'org.eclipse.persistence:eclipselink:3.0.0'
+    implementation 'org.hibernate:hibernate-core:5.6.15.Final'
+    implementation 'org.postgresql:postgresql:42.5.4'
+    implementation 'com.mchange:c3p0:0.9.5.5'
+    implementation 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    implementation 'jakarta.ejb:jakarta.ejb-api:4.0.1'
+    implementation 'jakarta.faces:jakarta.faces-api:3.0.0'
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    implementation 'jakarta.platform:jakarta.jakartaee-web-api:9.0.0'
+    implementation 'jakarta.json:jakarta.json-api:2.1.1'
+    implementation 'jakarta.json.bind:jakarta.json.bind-api:3.0.0'
+    implementation 'org.postgresql:postgresql:42.6.0'
+    implementation 'org.hibernate:hibernate-core:6.2.6.Final'
+    implementation 'org.primefaces:primefaces:12.0.0:jakarta'
+    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    runtimeOnly 'org.flywaydb:flyway-gradle-plugin:9.16.1'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testCompileOnly 'org.projectlombok:lombok:1.18.26'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
 //
-    //implementation 'javax.xml.bind:jaxb-api:2.3.1'
-    //implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
 }
 
 test {
@@ -231,5 +231,27 @@ task history {
             println "Restoring original HEAD"
             "git checkout -".execute().waitFor()
         }
+    }
+}
+task alt(dependsOn: build){
+    group = 'Build'
+    description = "create war with changed file's names(from src/main/resources/change-names.txt"
+
+
+
+    def altDir = file("$buildDir/altSrc")
+    def changeNames = file("src/main/resources/change-name.properties")
+    doLast {
+
+        copy {
+            from 'src/main/java'
+            into altDir
+        }
+        if (!changeNames.exists()) {
+            throw new GradleException("File ${changeNames.name} not found")
+        }
+        def changePatterns = changeNames.readLines()
+
+
     }
 }
