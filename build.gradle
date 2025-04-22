@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'war'
-
 }
 group 'com.example'
 version '1.0-SNAPSHOT'
@@ -47,17 +46,29 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
     testCompileOnly 'org.projectlombok:lombok:1.18.26'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
-//
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+////
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
+}
+task buildWithoutTests {
+    ["gradlew.bat", "build", "-x", "test"].execute()
 }
 
 test {
     useJUnitPlatform()
+    reports {
+        junitXml.required = true;
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
 
 
 import javax.xml.parsers.DocumentBuilderFactory
+import java.util.regex.Pattern
 
 task xml {
     group = "verification"
@@ -92,8 +103,9 @@ task scp(dependsOn: build) {
     doLast {
         def user = project.hasProperty("name") ? project.property("name") : "admin"
         def host = project.hasProperty("host") ? project.property("host") : "localhost"
-        def remoteDir = "/home/${user}/deploy/"
-        def localFile = file("build/libs/${project.name}-${version}.war") // или конкретный .jar
+        //def remoteDir = "/home/${user}/deploy/"
+        def remoteDir = "C:/Users/${user}/documents/"
+        def localFile = file("build/libs/${project.name}-${version}.war")
 
         if (!localFile.exists()) {
             throw new GradleException("file not found: ${localFile}")
@@ -102,7 +114,7 @@ task scp(dependsOn: build) {
         println "Sending ${localFile.name} on ${user}@${host}:${remoteDir}"
 
         def result = exec {
-            commandLine 'scp', localFile.absolutePath, "${user}@${host}:${remoteDir}"
+             commandLine 'scp', localFile.absolutePath, "${user}@${host}:${remoteDir}"
         }
 
         println "Sending is completed"
@@ -179,7 +191,7 @@ task diff {
         println "do commit"
 
         "git add .".execute().waitFor()
-        def commitProcess = ["git", "commit", "-m", "commit by Gradle"].execute()
+        def commitProcess =  ["git", "commit", "-m", "commit by Gradle ${new Date()}"].execute()
         commitProcess.waitFor()
         println commitProcess.text + "done"
     }
@@ -198,7 +210,7 @@ task history {
                 "git checkout $commit".execute().waitFor()
 
                 println "Trying to compile..."
-                def process = "gradlew.bat build --no-daemon --console=plain".execute()
+                def process = "gradlew.bat buildWithoutTests --no-daemon --console=plain".execute()
                 def output = new StringBuilder()
                 def error = new StringBuilder()
                 process.consumeProcessOutput(output, error)
@@ -233,25 +245,105 @@ task history {
         }
     }
 }
-task alt(dependsOn: build){
+task alt(type: Copy) {
     group = 'Build'
     description = "create war with changed file's names(from src/main/resources/change-names.txt"
 
 
-
-    def altDir = file("$buildDir/altSrc")
-    def changeNames = file("src/main/resources/change-name.properties")
-    doLast {
-
-        copy {
-            from 'src/main/java'
-            into altDir
-        }
+    from('src/main/java') {
+        include '**/*.java'
+        def changeNames = file("src/main/resources/change-name.properties")
         if (!changeNames.exists()) {
             throw new GradleException("File ${changeNames.name} not found")
         }
-        def changePatterns = changeNames.readLines()
+        def replacements = new Properties()
+        replacements.load(new FileInputStream(changeNames))
+        replacements.each { safeOriginal, safeFinal ->
+//            def safeOriginal = Pattern.quote(original.toString())
+//            def safeFinal = Pattern.quote(finalvers.toString())
+            println "Replacing: ${safeOriginal} to ${safeFinal}"
+            rename { fileName ->
+                fileName.replaceAll(safeOriginal.toString(), safeFinal.toString())
+            }
+            filter {
+                it.replaceAll(safeOriginal.toString(), safeFinal.toString())
+            }
+        }
 
 
+    }
+    into 'build/altSrc'
+    outputs.upToDateWhen { false }
+}
+sourceSets {
+    alt {
+        java.srcDir "$buildDir/altSrc"
+        compileClasspath += main.output + configurations.altImplementation
+        runtimeClasspath += output + compileClasspath
+    }
+}
+//tasks.named('compileAltJava') {
+//    dependsOn tasks.named('alt')
+//    options.annotationProcessorPath = configurations.altAnnotationProcessor
+//}
+configurations {
+    altImplementation.extendsFrom implementation
+    altAnnotationProcessor.extendsFrom annotationProcessor
+    altResolvedClasspath {
+        canBeResolved = true
+        canBeConsumed = false
+        extendsFrom altImplementation
+    }
+    altImplementation {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+tasks.named('compileAltJava').configure {
+    dependsOn alt
+    source = sourceSets.alt.java
+    classpath = sourceSets.alt.compileClasspath
+    destinationDirectory.set(file("$buildDir/classes/alt"))
+    options.encoding = 'UTF-8'
+    options.annotationProcessorPath = configurations.altAnnotationProcessor
+}
+
+tasks.register('altJar', Jar) {
+    dependsOn 'compileAltJava'
+    archiveClassifier.set('alt')
+    from("$buildDir/classes/alt")
+}
+
+task showannotationdeps {
+    doLast {
+        println "ALT Annotation Processor deps:"
+        configurations.altAnnotationProcessor.each {
+            println " - $it.name"
+        }
+    }
+}
+
+task report {
+    group = 'test'
+    description = "If tests were passed, the result commit"
+
+    dependsOn test
+
+    def reportDir = file("build/test-results")
+    doLast {
+        if (reportDir.exists()) {
+            def testResults = file("build/test-results/test/binary/TEST-Tester.xml")
+            println "tests were found"
+            if (!test.state.failure) {
+                "git add $reportDir".execute()
+                "git commit -m tests".execute()
+                println "tests were commited"
+            }
+            else {
+                throw new GradleException("Test did not pass")
+            }
+        } else {
+            throw new GradleException("Dir ${reportDir.name} not found")
+        }
     }
 }
