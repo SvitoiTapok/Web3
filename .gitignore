@@ -3,7 +3,10 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-!build/test-results
+!build/test-results/
+!build/test-results/test/
+!build/test-results/test/binary/
+!build/test-results/test/*.xml
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
