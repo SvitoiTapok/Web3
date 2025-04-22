@@ -52,6 +52,9 @@ dependencies {
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
 }
+task buildWithoutTests {
+    ["gradlew.bat", "build", "-x", "test"].execute()
+}
 
 test {
     useJUnitPlatform()
@@ -207,7 +210,7 @@ task history {
                 "git checkout $commit".execute().waitFor()
 
                 println "Trying to compile..."
-                def process = "gradlew.bat build --no-daemon --console=plain".execute()
+                def process = "gradlew.bat buildWithoutTests --no-daemon --console=plain".execute()
                 def output = new StringBuilder()
                 def error = new StringBuilder()
                 process.consumeProcessOutput(output, error)

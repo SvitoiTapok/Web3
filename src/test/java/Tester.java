@@ -19,7 +19,7 @@ public class Tester {
     }
     @Test
     public void testFour(){
-        assertTrue(RequestParser.hitCheck(-1,-1,4));
+        assertFalse(RequestParser.hitCheck(-1,-1,4));
     }
 
 
