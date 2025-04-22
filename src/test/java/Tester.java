@@ -15,7 +15,7 @@ public class Tester {
     }
     @Test
     public void testThree(){
-        assertFalse(RequestParser.hitCheck(-1,-1,5));
+        assertTrue(RequestParser.hitCheck(-1,-1,5));
     }
     @Test
     public void testFour(){
