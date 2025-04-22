@@ -1,12 +1,13 @@
 .gradle
+
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-!build/test-results/
-!build/test-results/test/
-!build/test-results/test/binary/
-!build/test-results/test/TEST-Tester.xml
+!test-results/
+!test-results/test/
+!test-results/test/binary/
+!test-results/test/TEST-Tester.xml
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
