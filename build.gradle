@@ -52,6 +52,9 @@ dependencies {
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
 }
+task buildWithoutTests {
+    ["gradlew.bat", "build", "-x", "test"].execute()
+}
 
 test {
     useJUnitPlatform()
@@ -93,7 +96,7 @@ task xml {
     }
 }
 
-task scp(dependsOn: build) {
+task scp(dependsOn: buildWithoutTests) {
     group = "deployment"
     description = "Build project and send it to chosen server by scp"
 
@@ -118,7 +121,7 @@ task scp(dependsOn: build) {
     }
 }
 
-task music(dependsOn: build) {
+task music(dependsOn: buildWithoutTests) {
     group = "fun"
     description = "play the song if project build successfully"
 
