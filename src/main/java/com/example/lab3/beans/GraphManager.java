@@ -34,6 +34,8 @@ public class GraphManager implements Serializable {
     private SpinnerBean spinnerBean;
     @Inject
     private TextBean textBean;
+    @Inject
+    private HitCounter hitCounter;
 
     public GraphManager(){
 //        hits.add(new Hit(0,0,2,122, true, "lol"));
@@ -87,8 +89,12 @@ public class GraphManager implements Serializable {
         long duration = RequestParser.getTime(now);
 
 
-        hits.add(new Hit(x, y, r, duration, hit, currentTime));
-        addData(x, y, r, hit, currentTime, duration);
+        Hit cur_hit = new Hit(x, y, r, duration, hit, currentTime);
+        hits.add(cur_hit);
+
+        hitCounter.add_hit(cur_hit);
+
+        //addData(x, y, r, hit, currentTime, duration);
         PrimeFaces.current().executeScript("drawNewDot("+ x + "," + y + "," + r + ",\"" + hit + "\")");
     }
     public List<Hit> getLastHits(){

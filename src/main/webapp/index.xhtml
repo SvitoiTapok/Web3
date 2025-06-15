@@ -121,17 +121,17 @@
 <!--                    </label>-->
 <!--                    <span id="rExcept" class="exception"></span>-->
                 </div>
-                <div>
-                    Информация об отправке:
-                    <span id="submitInfo"> </span>
-                </div>
                 <h:commandButton id="submit" value="Отправить" action="#{graphManager.add}" onclick="drawDotByParams()">
-                    <f:ajax action="submit" render="table"/>
+                    <f:ajax action="submit" render="table miss_notification"/>
                 </h:commandButton>
-
+                <div>
+                <h:panelGroup id="miss_notification">
+                <h:outputText value="Вы промахнулись более 4 раз! Внимательнее!" rendered="#{hitCounter.temp_counter > 4}" />
+                </h:panelGroup>
+                </div>
                 <div style="margin-top: 100px; font-size: 20px">
-                    <h:commandButton value="К таблице результатов" action="goToResults" />
-                    <h:commandButton value="К начальной странице" action="goToStart" />
+                    <h:commandButton id="go_to_table" value="К таблице результатов" action="goToResults" />
+                    <h:commandButton id="go_to_main" value="К начальной странице" action="goToStart" />
                 </div>
             </h:form>
         </div>

@@ -249,6 +249,8 @@ function repaint() {
         e.setAttribute("name", r)
     })
 }
+function four_miss_notification(){
 
+}
 
 //console.log("ajlsdkfjasd")
