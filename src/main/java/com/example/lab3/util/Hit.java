@@ -4,9 +4,11 @@ package com.example.lab3.util;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class Hit {
+public class Hit implements Serializable {
     private double x;
     private double y;
     private double r;
