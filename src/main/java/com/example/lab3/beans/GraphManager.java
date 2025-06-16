@@ -3,6 +3,7 @@ package com.example.lab3.beans;
 
 //@WebServlet(name = "helloServlet", value = "/hello-servlet")
 
+import com.example.lab3.mbeans.HitCounter;
 import com.example.lab3.util.*;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -78,9 +79,7 @@ public class GraphManager implements Serializable {
 //    }
 //}
     public void add(){
-        System.out.println("add");
         Instant now = Instant.now();
-        System.out.println(spinnerBean.getNumber());
         double x = spinnerBean.getNumber();
         double y = textBean.getInput();
         double r = sliderBean.getNumber();
@@ -92,7 +91,7 @@ public class GraphManager implements Serializable {
         Hit cur_hit = new Hit(x, y, r, duration, hit, currentTime);
         hits.add(cur_hit);
 
-        hitCounter.add_hit(cur_hit);
+        hitCounter.addHit(cur_hit.isHit());
 
         //addData(x, y, r, hit, currentTime, duration);
         PrimeFaces.current().executeScript("drawNewDot("+ x + "," + y + "," + r + ",\"" + hit + "\")");

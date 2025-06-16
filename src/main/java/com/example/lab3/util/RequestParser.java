@@ -71,7 +71,6 @@ public class RequestParser {
             if (par.contains("y")) params[1] = Double.parseDouble(par.substring(2));
             if (par.contains("r")) params[2] = Double.parseDouble(par.substring(2));
         }
-        System.out.println(params[0]+ " " + params[1] + " " + params[2]);
         return params;
     }
 

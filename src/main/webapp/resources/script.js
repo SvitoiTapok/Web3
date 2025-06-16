@@ -249,7 +249,10 @@ function repaint() {
         e.setAttribute("name", r)
     })
 }
-function four_miss_notification(){
+function recolor_rect(pers){
+    let e = document.getElementById("myRect")
+    e.setAttribute("width", pers*100)
+    console.log("kdafaskldjfkasdjf")
 
 }
 

@@ -22,7 +22,6 @@ public class TextBean implements Serializable{
     private Double input=0.0;
 
     public void setInput(Double input) {
-        System.out.println("text:" + input);
         this.input = input;
     }
 }

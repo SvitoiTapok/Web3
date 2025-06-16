@@ -14,7 +14,6 @@ public class TextValidator implements Validator {
     public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
         Double textValue = (Double) value;
         if (textValue < -3 || textValue > 5) {
-            System.out.println("ne nais");
             // Создаем сообщение об ошибке
             FacesMessage msg = new FacesMessage("Значение должно быть в пределах от -5 до 5");
             msg.setSeverity(FacesMessage.SEVERITY_ERROR);
